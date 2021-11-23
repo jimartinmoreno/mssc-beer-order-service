@@ -69,7 +69,7 @@ public class BeerOrderManagerImplIT {
     @TestConfiguration
     static class RestTemplateBuilderProvider {
         @Bean(destroyMethod = "stop")
-        public WireMockServer wireMockServer(){
+        public WireMockServer wireMockServer() {
             WireMockServer server = with(wireMockConfig().port(8083));
             server.start();
             return server;
@@ -88,7 +88,7 @@ public class BeerOrderManagerImplIT {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
 
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-        .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
+                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
 
@@ -96,7 +96,6 @@ public class BeerOrderManagerImplIT {
 
         await().untilAsserted(() -> {
             BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
-
             assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getOrderStatus());
         });
 
@@ -129,7 +128,6 @@ public class BeerOrderManagerImplIT {
 
         await().untilAsserted(() -> {
             BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
-
             assertEquals(BeerOrderStatusEnum.VALIDATION_EXCEPTION, foundOrder.getOrderStatus());
         });
     }
@@ -282,7 +280,7 @@ public class BeerOrderManagerImplIT {
         assertThat(deallocateOrderRequest.getBeerOrderDto().getId()).isEqualTo(savedBeerOrder.getId());
     }
 
-    public BeerOrder createBeerOrder(){
+    public BeerOrder createBeerOrder() {
         BeerOrder beerOrder = BeerOrder.builder()
                 .customer(testCustomer)
                 .build();

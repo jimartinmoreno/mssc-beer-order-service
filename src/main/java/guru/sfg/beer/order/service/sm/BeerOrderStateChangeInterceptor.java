@@ -30,15 +30,17 @@ public class BeerOrderStateChangeInterceptor extends StateMachineInterceptorAdap
 
     @Transactional
     @Override
-    public void preStateChange(State<BeerOrderStatusEnum, BeerOrderEventEnum> state, Message<BeerOrderEventEnum> message, Transition<BeerOrderStatusEnum, BeerOrderEventEnum> transition, StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> stateMachine) {
+    //public void postStateChange(State<S, E> state, Message<E> message, Transition<S, E> transition, StateMachine<S, E> stateMachine, StateMachine<S, E> rootStateMachine) {
+    public void preStateChange(State<BeerOrderStatusEnum, BeerOrderEventEnum> state, Message<BeerOrderEventEnum> message, Transition<BeerOrderStatusEnum, BeerOrderEventEnum> transition, StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> stateMachine, StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> rootStateMachine) {
         log.debug("Pre-State Change");
 
         Optional.ofNullable(message)
-                .flatMap(msg -> Optional.ofNullable((String) msg.getHeaders().getOrDefault(BeerOrderManagerImpl.ORDER_ID_HEADER, " ")))
+                .flatMap(msg ->
+                        Optional.ofNullable((String) msg.getHeaders().getOrDefault(BeerOrderManagerImpl.ORDER_ID_HEADER, " ")))
                 .ifPresent(orderId -> {
                     log.debug("Saving state for order id: " + orderId + " Status: " + state.getId());
 
-                    BeerOrder beerOrder = beerOrderRepository.getOne(UUID.fromString(orderId));
+                    BeerOrder beerOrder = beerOrderRepository.getById(UUID.fromString(orderId));
                     beerOrder.setOrderStatus(state.getId());
                     beerOrderRepository.saveAndFlush(beerOrder);
                 });

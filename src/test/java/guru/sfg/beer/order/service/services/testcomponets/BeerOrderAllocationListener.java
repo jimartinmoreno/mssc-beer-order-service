@@ -21,7 +21,7 @@ public class BeerOrderAllocationListener {
     private final JmsTemplate jmsTemplate;
 
     @JmsListener(destination = JmsConfig.ALLOCATE_ORDER_QUEUE)
-    public void listen(Message msg){
+    public void listen(Message msg) {
         AllocateOrderRequest request = (AllocateOrderRequest) msg.getPayload();
         boolean pendingInventory = false;
         boolean allocationError = false;
@@ -29,11 +29,11 @@ public class BeerOrderAllocationListener {
 
         //set allocation error
         if (request.getBeerOrderDto().getCustomerRef() != null) {
-            if (request.getBeerOrderDto().getCustomerRef().equals("fail-allocation")){
+            if (request.getBeerOrderDto().getCustomerRef().equals("fail-allocation")) {
                 allocationError = true;
-            }  else if (request.getBeerOrderDto().getCustomerRef().equals("partial-allocation")) {
+            } else if (request.getBeerOrderDto().getCustomerRef().equals("partial-allocation")) {
                 pendingInventory = true;
-            } else if (request.getBeerOrderDto().getCustomerRef().equals("dont-allocate")){
+            } else if (request.getBeerOrderDto().getCustomerRef().equals("dont-allocate")) {
                 sendResponse = false;
             }
         }
