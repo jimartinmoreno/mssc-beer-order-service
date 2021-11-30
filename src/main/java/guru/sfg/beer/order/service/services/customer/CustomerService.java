@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.services;
+package guru.sfg.beer.order.service.services.customer;
 
 import guru.sfg.brewery.model.CustomerPagedList;
 import org.springframework.data.domain.Pageable;

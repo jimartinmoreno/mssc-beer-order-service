@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.services;
+package guru.sfg.beer.order.service.services.customer;
 
 import guru.sfg.beer.order.service.domain.Customer;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
@@ -30,11 +30,11 @@ public class CustomerServiceImpl implements CustomerService {
         Page<Customer> customerPage = customerRepository.findAll(pageable);
 
         return new CustomerPagedList(customerPage
-                        .stream()
-                        .map(customerMapper::customerToDto)
-                        .collect(Collectors.toList()),
-                    PageRequest.of(customerPage.getPageable().getPageNumber(),
-                        customerPage.getPageable().getPageSize()),
-                        customerPage.getTotalElements());
+                .stream()
+                .map(customerMapper::customerToDto)
+                .collect(Collectors.toList()),
+//                PageRequest.of(customerPage.getPageable().getPageNumber(), customerPage.getPageable().getPageSize()),
+                customerPage.getPageable(),
+                customerPage.getTotalElements());
     }
 }

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package guru.sfg.beer.order.service.services;
+package guru.sfg.beer.order.service.services.beerorder;
 
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
@@ -28,14 +28,12 @@ import guru.sfg.brewery.model.BeerOrderPagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -55,17 +53,13 @@ public class BeerOrderServiceImpl implements BeerOrderService {
             Page<BeerOrder> beerOrderPage =
                     beerOrderRepository.findAllByCustomer(customerOptional.get(), pageable);
 
-            new BeerOrderPagedList(beerOrderPage
-                    .stream()
-                    .map(beerOrderMapper::beerOrderToDto)
-                    .toList(), beerOrderPage.getPageable(),
-                    beerOrderPage.getTotalElements());
             return new BeerOrderPagedList(beerOrderPage
                     .stream()
+//                    .peek(beerOrder -> log.debug("beerOrder: " + beerOrder))
                     .map(beerOrderMapper::beerOrderToDto)
-                    .toList(), PageRequest.of(
-                    beerOrderPage.getPageable().getPageNumber(),
-                    beerOrderPage.getPageable().getPageSize()),
+//                    .peek(beerOrderDto -> log.debug("beerOrderDto: " + beerOrderDto))
+                    .toList(),
+                    beerOrderPage.getPageable(),
                     beerOrderPage.getTotalElements());
         } else {
             return null;

@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package guru.sfg.beer.order.service.services;
+package guru.sfg.beer.order.service.services.beerorder;
 
 
 import guru.sfg.brewery.model.BeerOrderDto;

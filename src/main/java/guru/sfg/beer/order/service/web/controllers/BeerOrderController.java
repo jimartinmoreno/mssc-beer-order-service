@@ -17,7 +17,7 @@
 
 package guru.sfg.beer.order.service.web.controllers;
 
-import guru.sfg.beer.order.service.services.BeerOrderService;
+import guru.sfg.beer.order.service.services.beerorder.BeerOrderService;
 import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.brewery.model.BeerOrderPagedList;
 import org.springframework.data.domain.PageRequest;

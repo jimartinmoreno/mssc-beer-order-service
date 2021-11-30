@@ -16,10 +16,7 @@
  */
 package guru.sfg.beer.order.service.domain;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -36,6 +33,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @Entity
+@ToString(exclude = {"beerOrders"})
 public class Customer extends BaseEntity {
 
     @Builder

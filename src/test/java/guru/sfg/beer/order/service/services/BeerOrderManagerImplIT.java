@@ -12,6 +12,7 @@ import guru.sfg.beer.order.service.domain.Customer;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.services.beer.BeerServiceImpl;
+import guru.sfg.beer.order.service.services.beerorder.BeerOrderManager;
 import guru.sfg.brewery.model.BeerDto;
 import guru.sfg.brewery.model.events.AllocationFailureEvent;
 import guru.sfg.brewery.model.events.DeallocateOrderRequest;
@@ -66,8 +67,18 @@ public class BeerOrderManagerImplIT {
 
     UUID beerId = UUID.randomUUID();
 
+    /**
+     * @Configuration that can be used to define additional beans or customizations for a test.
+     * Unlike regular @Configuration classes the use of @TestConfiguration does not prevent auto-detection
+     * of @SpringBootConfiguration.
+     */
     @TestConfiguration
     static class RestTemplateBuilderProvider {
+        /**
+         * destroyMethod = "stop" > The optional name of a method to call on the bean instance upon closing the application
+         * context, for example a close() method on a JDBC DataSource implementation, or a Hibernate SessionFactory object.
+         * The method must have no arguments but may throw any exception.
+         */
         @Bean(destroyMethod = "stop")
         public WireMockServer wireMockServer() {
             WireMockServer server = with(wireMockConfig().port(8083));
@@ -84,7 +95,7 @@ public class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testNewToAllocated() throws JsonProcessingException, InterruptedException {
+    void testNewToAllocated() throws JsonProcessingException {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
 
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
