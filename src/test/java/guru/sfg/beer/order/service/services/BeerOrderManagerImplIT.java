@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @ExtendWith(WireMockExtension.class)
 @SpringBootTest
-public class BeerOrderManagerImplIT {
+class BeerOrderManagerImplIT {
 
     @Autowired
     BeerOrderManager beerOrderManager;
