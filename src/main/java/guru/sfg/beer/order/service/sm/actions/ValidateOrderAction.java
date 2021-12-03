@@ -29,6 +29,11 @@ public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
 
     @Override
     public void execute(StateContext<BeerOrderStatusEnum, BeerOrderEventEnum> context) {
+
+        log.debug(context.getStateMachine().getUuid() +
+                " == " + context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER) +
+                " == " + context.getMessageHeader(BeerOrderManagerImpl.ORDER_ID_HEADER));
+
         String beerOrderId = (String) context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER);
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
 

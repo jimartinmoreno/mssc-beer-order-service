@@ -21,9 +21,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by jt on 11/29/19.
- */
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -49,7 +46,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     @Transactional
     @Override
     public void processValidationResult(UUID beerOrderId, Boolean isValid) {
-        log.debug("Process Validation Result for beerOrderId: " + beerOrderId + " Valid? " + isValid);
+        log.debug("Process Validation Result for beerOrderId: " + beerOrderId + " is Valid? " + isValid);
 
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(beerOrderId);
 
@@ -60,6 +57,8 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
                 //wait for status change
                 awaitForStatus(beerOrderId, BeerOrderStatusEnum.VALIDATED);
 
+                // Tenemos que recuperar una nueva beerOrder por que la antenrior ha cambiado al enviar el nuevo evento
+                // usando sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_PASSED)
                 BeerOrder validatedOrder = beerOrderRepository.findById(beerOrderId).get();
 
                 sendBeerOrderEvent(validatedOrder, BeerOrderEventEnum.ALLOCATE_ORDER);
@@ -136,6 +135,11 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         }, () -> log.error("Order Not Found. Id: " + id));
     }
 
+    /**
+     * Método que espera a que la maquina de estados actualice el estado de la orden al estado especificado
+     * @param beerOrderId
+     * @param status
+     */
     private void awaitForStatus(UUID beerOrderId, BeerOrderStatusEnum status) {
 
         AtomicBoolean found = new AtomicBoolean(false);
@@ -154,9 +158,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
                 } else {
                     log.debug("Order Status Not Equal. Expected: " + status.name() + " Found: " + beerOrder.getOrderStatus().name());
                 }
-            }, () -> {
-                log.debug("Order Id Not Found");
-            });
+            }, () -> log.debug("Order Id Not Found"));
 
             if (!found.get()) {
                 try {
