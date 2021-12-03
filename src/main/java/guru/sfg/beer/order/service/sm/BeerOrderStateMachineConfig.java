@@ -12,9 +12,6 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 import java.util.EnumSet;
 
-/**
- * Created by jt on 11/29/19.
- */
 @RequiredArgsConstructor
 @Configuration
 @EnableStateMachineFactory

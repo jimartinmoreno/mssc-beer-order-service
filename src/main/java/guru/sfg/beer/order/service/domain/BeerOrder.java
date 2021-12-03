@@ -28,14 +28,11 @@ import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Created by jt on 2019-01-26.
- */
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 public class BeerOrder extends BaseEntity {
 
     @Builder

@@ -18,9 +18,6 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Created by jt on 11/30/19.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -36,9 +33,10 @@ public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
-            jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_QUEUE, ValidateOrderRequest.builder()
-                    .beerOrder(beerOrderMapper.beerOrderToDto(beerOrder))
-                    .build());
+            jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_QUEUE,
+                    ValidateOrderRequest.builder()
+                            .beerOrder(beerOrderMapper.beerOrderToDto(beerOrder))
+                            .build());
         }, () -> log.error("Order Not Found. Id: " + beerOrderId));
 
         log.debug("Sent Validation request to queue for order id " + beerOrderId);

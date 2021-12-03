@@ -26,14 +26,11 @@ import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Created by jt on 2019-01-26.
- */
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"beerOrders"})
+@ToString(exclude = {"beerOrders"}, callSuper = true)
 public class Customer extends BaseEntity {
 
     @Builder
