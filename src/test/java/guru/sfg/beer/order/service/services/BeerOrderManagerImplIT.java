@@ -38,9 +38,6 @@ import static org.awaitility.Awaitility.await;
 import static org.jgroups.util.Util.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Created by jt on 2/14/20.
- */
 @ExtendWith(WireMockExtension.class)
 @SpringBootTest
 class BeerOrderManagerImplIT {
@@ -65,6 +62,8 @@ class BeerOrderManagerImplIT {
 
     Customer testCustomer;
 
+    BeerDto beerDto;
+
     UUID beerId = UUID.randomUUID();
 
     /**
@@ -88,22 +87,23 @@ class BeerOrderManagerImplIT {
     }
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws JsonProcessingException {
         testCustomer = customerRepository.save(Customer.builder()
                 .customerName("Test Customer")
                 .build());
+        beerDto = BeerDto.builder().id(beerId).upc("0631234300019").build();
+
+        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "0631234300019")
+                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
     }
 
     @Test
     void testNewToAllocated() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
+        System.out.println("savedBeerOrder = " + savedBeerOrder);
 
         await().untilAsserted(() -> {
             BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
@@ -127,10 +127,6 @@ class BeerOrderManagerImplIT {
 
     @Test
     void testFailedValidation() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("fail-validation");
@@ -145,10 +141,6 @@ class BeerOrderManagerImplIT {
 
     @Test
     void testNewToPickedUp() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
 
@@ -173,10 +165,6 @@ class BeerOrderManagerImplIT {
 
     @Test
     void testAllocationFailure() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("fail-allocation");
@@ -196,10 +184,6 @@ class BeerOrderManagerImplIT {
 
     @Test
     void testPartialAllocation() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("partial-allocation");
@@ -214,10 +198,6 @@ class BeerOrderManagerImplIT {
 
     @Test
     void testValidationPendingToCancel() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("dont-validate");
@@ -239,10 +219,6 @@ class BeerOrderManagerImplIT {
 
     @Test
     void testAllocationPendingToCancel() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("dont-allocate");
@@ -264,10 +240,6 @@ class BeerOrderManagerImplIT {
 
     @Test
     void testAllocatedToCancel() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
-                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
 
@@ -299,7 +271,7 @@ class BeerOrderManagerImplIT {
         Set<BeerOrderLine> lines = new HashSet<>();
         lines.add(BeerOrderLine.builder()
                 .beerId(beerId)
-                .upc("12345")
+                .upc("0631234300019")
                 .orderQuantity(1)
                 .beerOrder(beerOrder)
                 .build());

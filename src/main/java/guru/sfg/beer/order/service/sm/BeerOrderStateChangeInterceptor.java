@@ -36,7 +36,7 @@ public class BeerOrderStateChangeInterceptor extends StateMachineInterceptorAdap
                                Transition<BeerOrderStatusEnum, BeerOrderEventEnum> transition,
                                StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> stateMachine,
                                StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> rootStateMachine) {
-        log.debug("Pre-State Change");
+        log.debug("preStateChange - Pre-State Change");
 
         Optional.ofNullable(message)
                 .flatMap(msg ->
@@ -44,11 +44,13 @@ public class BeerOrderStateChangeInterceptor extends StateMachineInterceptorAdap
                                 .getOrDefault(BeerOrderManagerImpl.ORDER_ID_HEADER, " "))
                 )
                 .ifPresent(orderId -> {
-                            log.debug("Saving state for order id: " + orderId + " Status: " + state.getId());
+                            log.debug("preStateChange - Saving state for order id: " + orderId + " Status: " + state.getId());
 
                             BeerOrder beerOrder = beerOrderRepository.getById(UUID.fromString(orderId));
                             beerOrder.setOrderStatus(state.getId());
-                            beerOrderRepository.saveAndFlush(beerOrder); //Forzamos a hibenate que guarde directamenteen BD
+                            beerOrder.setOrderStatusCallbackUrl("http://localhost:8080/api/v1/customers/" + beerOrder.getCustomer().getId() + "/orders/" + beerOrder.getId());
+                            BeerOrder savedbeerOrder = beerOrderRepository.saveAndFlush(beerOrder); //Forzamos a hibenate que guarde directamente en BD
+                            log.debug("preStateChange - Saved order: " + savedbeerOrder);
                         }
                 );
     }
@@ -64,12 +66,26 @@ public class BeerOrderStateChangeInterceptor extends StateMachineInterceptorAdap
         return super.preEvent(message, stateMachine);
     }
 
+    @Transactional
     @Override
     public void postStateChange(State<BeerOrderStatusEnum, BeerOrderEventEnum> state,
-                                Message<BeerOrderEventEnum> message, Transition<BeerOrderStatusEnum, BeerOrderEventEnum> transition,
+                                Message<BeerOrderEventEnum> message,
+                                Transition<BeerOrderStatusEnum, BeerOrderEventEnum> transition,
                                 StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> stateMachine,
                                 StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> rootStateMachine) {
-        super.postStateChange(state, message, transition, stateMachine, rootStateMachine);
+        Optional.ofNullable(message)
+                .flatMap(msg ->
+                        Optional.ofNullable((String) msg.getHeaders()
+                                .getOrDefault(BeerOrderManagerImpl.ORDER_ID_HEADER, " "))
+                )
+                .ifPresent(orderId -> {
+
+                            BeerOrder beerOrder = beerOrderRepository.getById(UUID.fromString(orderId));
+                            beerOrder.setOrderStatus(state.getId());
+
+                            log.debug("postStateChange - saved state for order id: " + beerOrder.getId() + " Status: " + beerOrder.getOrderStatus());
+                        }
+                );
     }
 
     @Override

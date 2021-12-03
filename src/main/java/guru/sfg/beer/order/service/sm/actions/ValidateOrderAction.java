@@ -34,7 +34,8 @@ public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
                 " == " + context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER) +
                 " == " + context.getMessageHeader(BeerOrderManagerImpl.ORDER_ID_HEADER));
 
-        String beerOrderId = (String) context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER);
+        //String beerOrderId = (String) context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER);
+        String beerOrderId = (String) context.getMessageHeader(BeerOrderManagerImpl.ORDER_ID_HEADER);
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
@@ -44,6 +45,7 @@ public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
                             .build());
         }, () -> log.error("Order Not Found. Id: " + beerOrderId));
 
-        log.debug("Sent Validation request to queue for order id " + beerOrderId);
+        log.debug("Sent Validation request to queue for order: " + beerOrderOptional.get());
+        log.debug("Sent Validation request to queue for order id: " + beerOrderId);
     }
 }
