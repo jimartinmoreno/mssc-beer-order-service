@@ -48,12 +48,15 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     public void processValidationResult(UUID beerOrderId, Boolean isValid) {
         log.debug("Process Validation Result for beerOrderId: " + beerOrderId + " is Valid? " + isValid);
 
-        // NACHO he tenido que añadir esto por que al lanzar los teste fallaba ya que el process se ejecutaba antes de que se
+        // NACHO he tenido que añadir esto por que al lanzar los tests fallaba ya que el process se ejecutaba antes de que se
         // hubiera realizado el save de la order en BD
         awaitForStatus(beerOrderId, BeerOrderStatusEnum.VALIDATION_PENDING);
 
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(beerOrderId);
         log.debug("beerOrderOptional: " + beerOrderOptional.isPresent());
+
+        //        BeerOrder beerOrder = beerOrderRepository.getById(beerOrderId);
+        //        log.debug("beerOrder: " + beerOrder.getId());
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
             if (isValid) {
@@ -144,6 +147,8 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
 
     /**
      * Método que espera a que la maquina de estados actualice el estado de la orden al estado especificado
+     * Es un workaround que hizo John para que pase los test de validación.
+     *
      * @param beerOrderId
      * @param status
      */

@@ -51,6 +51,7 @@ public class BeerOrderStateChangeInterceptor extends StateMachineInterceptorAdap
                             beerOrder.setOrderStatusCallbackUrl("http://localhost:8080/api/v1/customers/" + beerOrder.getCustomer().getId() + "/orders/" + beerOrder.getId());
                             BeerOrder savedbeerOrder = beerOrderRepository.saveAndFlush(beerOrder); //Forzamos a hibenate que guarde directamente en BD
                             log.debug("preStateChange - Saved order: " + savedbeerOrder);
+
                         }
                 );
     }

@@ -38,6 +38,10 @@ import static org.awaitility.Awaitility.await;
 import static org.jgroups.util.Util.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Test de integración que utiliza wiremocks para simular las llamadas rest y un broker jms con 2 mock listeners implementados en
+ * el paquete testcomponents
+ */
 @ExtendWith(WireMockExtension.class)
 @SpringBootTest
 class BeerOrderManagerImplIT {
@@ -80,7 +84,9 @@ class BeerOrderManagerImplIT {
          */
         @Bean(destroyMethod = "stop")
         public WireMockServer wireMockServer() {
-            WireMockServer server = with(wireMockConfig().port(8083));
+            // Esta configuracion a nivel de puerto coincide con lo configurado en el application.properties de /test
+            WireMockServer server = with(wireMockConfig().port(1234));
+            //WireMockServer server = new WireMockServer();
             server.start();
             return server;
         }
@@ -98,14 +104,21 @@ class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testNewToAllocated() throws JsonProcessingException {
+    void testNewToAllocated() {
 
         BeerOrder beerOrder = createBeerOrder();
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
         System.out.println("savedBeerOrder = " + savedBeerOrder);
 
+        /**
+         * Awaitility is a small Java DSL for synchronizing (waiting for) asynchronous operations. It makes it easy to
+         * test asynchronous code. Examples:
+         */
         await().untilAsserted(() -> {
+//        await().until(() -> beerOrderRepository.findById(beerOrder.getId()).get().getOrderStatus().equals(BeerOrderStatusEnum.ALLOCATED));
+
+
             BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
             assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getOrderStatus());
         });
@@ -120,13 +133,39 @@ class BeerOrderManagerImplIT {
 
         assertNotNull(savedBeerOrder2);
         assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder2.getOrderStatus());
-        savedBeerOrder2.getBeerOrderLines().forEach(line -> {
-            assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
+        savedBeerOrder2.getBeerOrderLines().forEach(lineX -> {
+            assertEquals(lineX.getOrderQuantity(), lineX.getQuantityAllocated());
         });
+//        });
     }
 
     @Test
-    void testFailedValidation() throws JsonProcessingException {
+    void testNewToAllocatedReviwed() {
+
+        BeerOrder beerOrder = createBeerOrder();
+
+        BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
+        System.out.println("savedBeerOrder = " + savedBeerOrder);
+
+        /**
+         * Awaitility is a small Java DSL for synchronizing (waiting for) asynchronous operations. It makes it easy to
+         * test asynchronous code. Examples:
+         */
+        await().until(() -> beerOrderRepository.findById(beerOrder.getId()).get().getOrderStatus().equals(BeerOrderStatusEnum.ALLOCATED));
+
+        BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
+        assertNotNull(foundOrder);
+        assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getOrderStatus());
+
+        foundOrder.getBeerOrderLines().forEach(lineX -> {
+            assertEquals(lineX.getOrderQuantity(), lineX.getQuantityAllocated());
+        });
+
+    }
+
+
+    @Test
+    void testFailedValidation() {
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("fail-validation");
@@ -140,23 +179,17 @@ class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testNewToPickedUp() throws JsonProcessingException {
+    void testNewToPickedUp() {
 
         BeerOrder beerOrder = createBeerOrder();
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
 
-        await().untilAsserted(() -> {
-            BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
-            assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getOrderStatus());
-        });
+        await().until(() -> beerOrderRepository.findById(beerOrder.getId()).get().getOrderStatus().equals(BeerOrderStatusEnum.ALLOCATED));
 
         beerOrderManager.beerOrderPickedUp(savedBeerOrder.getId());
 
-        await().untilAsserted(() -> {
-            BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
-            assertEquals(BeerOrderStatusEnum.PICKED_UP, foundOrder.getOrderStatus());
-        });
+        await().until(() -> beerOrderRepository.findById(beerOrder.getId()).get().getOrderStatus().equals(BeerOrderStatusEnum.PICKED_UP));
 
         BeerOrder pickedUpOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
 
@@ -164,7 +197,7 @@ class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testAllocationFailure() throws JsonProcessingException {
+    void testAllocationFailure() {
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("fail-allocation");
@@ -183,7 +216,7 @@ class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testPartialAllocation() throws JsonProcessingException {
+    void testPartialAllocation() {
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("partial-allocation");
@@ -197,7 +230,7 @@ class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testValidationPendingToCancel() throws JsonProcessingException {
+    void testValidationPendingToCancel() {
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("dont-validate");
@@ -218,7 +251,7 @@ class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testAllocationPendingToCancel() throws JsonProcessingException {
+    void testAllocationPendingToCancel() {
 
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("dont-allocate");
@@ -239,7 +272,7 @@ class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testAllocatedToCancel() throws JsonProcessingException {
+    void testAllocatedToCancel() {
 
         BeerOrder beerOrder = createBeerOrder();
 

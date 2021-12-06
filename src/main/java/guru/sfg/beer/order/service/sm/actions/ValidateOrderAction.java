@@ -30,13 +30,14 @@ public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
     @Override
     public void execute(StateContext<BeerOrderStatusEnum, BeerOrderEventEnum> context) {
 
-        log.debug(context.getStateMachine().getUuid() +
-                " == " + context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER) +
-                " == " + context.getMessageHeader(BeerOrderManagerImpl.ORDER_ID_HEADER));
+//        log.debug(context.getStateMachine().getUuid() +
+//                " == " + context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER) +
+//                " == " + context.getMessageHeader(BeerOrderManagerImpl.ORDER_ID_HEADER));
 
         //String beerOrderId = (String) context.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER);
         String beerOrderId = (String) context.getMessageHeader(BeerOrderManagerImpl.ORDER_ID_HEADER);
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
+
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
             jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_QUEUE,
@@ -44,6 +45,7 @@ public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
                             .beerOrder(beerOrderMapper.beerOrderToDto(beerOrder))
                             .build());
         }, () -> log.error("Order Not Found. Id: " + beerOrderId));
+
 
         log.debug("Sent Validation request to queue for order: " + beerOrderOptional.get());
         log.debug("Sent Validation request to queue for order id: " + beerOrderId);

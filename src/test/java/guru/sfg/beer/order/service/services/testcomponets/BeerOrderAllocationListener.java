@@ -11,7 +11,7 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by jt on 2/16/20.
+ * Se define para procesar los mensajes de validación simulando lo que haria el inventory service
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +21,12 @@ public class BeerOrderAllocationListener {
     private final JmsTemplate jmsTemplate;
 
     @JmsListener(destination = JmsConfig.ALLOCATE_ORDER_QUEUE)
-    public void listen(Message msg) {
+    public void listen(Message msg, AllocateOrderRequest allocateOrderRequest) {
+        log.debug("############# listen - msg: " + msg);
+        log.debug("############# listen - allocateOrderRequest: " + allocateOrderRequest);
+        msg.getHeaders().entrySet().forEach(entry -> log.debug(entry.getKey() + ": " + entry.getValue()));
+        log.debug("#############");
+
         AllocateOrderRequest request = (AllocateOrderRequest) msg.getPayload();
         boolean pendingInventory = false;
         boolean allocationError = false;
@@ -38,7 +43,7 @@ public class BeerOrderAllocationListener {
             }
         }
 
-        boolean finalPendingInventory = pendingInventory;
+        boolean finalPendingInventory = pendingInventory; // Variable used in lambda expression should be final or effectively final
 
         request.getBeerOrderDto().getBeerOrderLines().forEach(beerOrderLineDto -> {
             if (finalPendingInventory) {
