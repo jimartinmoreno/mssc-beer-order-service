@@ -25,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -44,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Test de integración que utiliza wiremocks para simular las llamadas rest y un broker jms con 2 mock listeners implementados en
  * el paquete testcomponents
  */
-@ActiveProfiles(value = {"default"})
 @ExtendWith(WireMockExtension.class)
 @SpringBootTest
 class BeerOrderManagerImplIT {
@@ -88,9 +86,9 @@ class BeerOrderManagerImplIT {
         @Bean(destroyMethod = "stop")
         public WireMockServer wireMockServer() {
             // Esta configuracion a nivel de puerto coincide con lo configurado en el application.properties de /test
-            WireMockServer server = with(wireMockConfig().port(7777));
+            WireMockServer server = with(wireMockConfig().port(1234));
             //WireMockServer server = new WireMockServer();
-            //server.start();
+            server.start();
             return server;
         }
     }

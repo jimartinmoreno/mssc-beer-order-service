@@ -6,7 +6,6 @@ import com.github.jenspiegsa.wiremockextension.WireMockExtension;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import guru.sfg.brewery.model.BeerDto;
 import guru.sfg.brewery.model.BeerPagedList;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +63,6 @@ class BeerServiceImplWireMockTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        wireMockServer.start();
         beerDto = BeerDto.builder().id(beerId).upc("0631234300019").build();
         BeerPagedList beerPagedList = new BeerPagedList(List.<BeerDto>of(beerDto));
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_PATH_V1)
@@ -85,12 +83,10 @@ class BeerServiceImplWireMockTest {
     }
 
     @Test
-    //@Disabled
     void getBeerById() {
     }
 
     @Test
-    //@Disabled
     void getBeerByUpc() {
     }
 }
