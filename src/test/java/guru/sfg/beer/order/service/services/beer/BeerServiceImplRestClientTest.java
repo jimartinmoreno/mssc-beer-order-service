@@ -41,7 +41,7 @@ class BeerServiceImplRestClientTest {
         BeerPagedList beerPagedList = new BeerPagedList(List.<BeerDto>of(beerDto));
 
         String detailsString = objectMapper.writeValueAsString(beerPagedList);
-        this.mockServer.expect(requestToUriTemplate("http://localhost:1234/" + BeerServiceImpl.BEER_PATH_V1))
+        this.mockServer.expect(requestToUriTemplate("http://localhost:7777/" + BeerServiceImpl.BEER_PATH_V1))
                 .andRespond(withSuccess(detailsString, MediaType.APPLICATION_JSON));
     }
 

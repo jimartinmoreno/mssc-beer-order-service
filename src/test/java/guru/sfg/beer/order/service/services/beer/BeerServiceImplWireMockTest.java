@@ -6,6 +6,7 @@ import com.github.jenspiegsa.wiremockextension.WireMockExtension;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import guru.sfg.brewery.model.BeerDto;
 import guru.sfg.brewery.model.BeerPagedList;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,19 +55,27 @@ class BeerServiceImplWireMockTest {
         @Bean(destroyMethod = "stop")
         public WireMockServer wireMockServer() {
             // Esta configuracion a nivel de puerto coincide con lo configurado en el application.properties de /test
-            WireMockServer server = with(wireMockConfig().port(1234));
+            WireMockServer server = with(wireMockConfig().port(7777));
             //WireMockServer server = new WireMockServer();
-            server.start();
+//            server.start();
             return server;
         }
     }
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
+        wireMockServer.start();
         beerDto = BeerDto.builder().id(beerId).upc("0631234300019").build();
         BeerPagedList beerPagedList = new BeerPagedList(List.<BeerDto>of(beerDto));
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_PATH_V1)
                 .willReturn(okJson(objectMapper.writeValueAsString(beerPagedList))));
+    }
+
+    @AfterEach
+    void tearDown() {
+        wireMockServer.resetAll();
+        wireMockServer.removeStub(get(BeerServiceImpl.BEER_PATH_V1));
+        wireMockServer.stop();
     }
 
     @Test
@@ -76,10 +85,12 @@ class BeerServiceImplWireMockTest {
     }
 
     @Test
+    //@Disabled
     void getBeerById() {
     }
 
     @Test
+    //@Disabled
     void getBeerByUpc() {
     }
 }
