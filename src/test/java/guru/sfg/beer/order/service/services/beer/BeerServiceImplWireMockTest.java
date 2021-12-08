@@ -64,6 +64,7 @@ class BeerServiceImplWireMockTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
+        wireMockServer.start();
         beerDto = BeerDto.builder().id(beerId).upc("0631234300019").build();
         BeerPagedList beerPagedList = new BeerPagedList(List.<BeerDto>of(beerDto));
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_PATH_V1)
