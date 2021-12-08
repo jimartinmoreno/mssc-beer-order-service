@@ -16,6 +16,7 @@ import guru.sfg.beer.order.service.services.beerorder.BeerOrderManager;
 import guru.sfg.brewery.model.BeerDto;
 import guru.sfg.brewery.model.events.AllocationFailureEvent;
 import guru.sfg.brewery.model.events.DeallocateOrderRequest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Test de integración que utiliza wiremocks para simular las llamadas rest y un broker jms con 2 mock listeners implementados en
  * el paquete testcomponents
  */
+@ActiveProfiles(value = {"default"})
 @ExtendWith(WireMockExtension.class)
 @SpringBootTest
 class BeerOrderManagerImplIT {
@@ -101,6 +104,13 @@ class BeerOrderManagerImplIT {
 
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "0631234300019")
                 .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
+    }
+
+    @AfterEach
+    void tearDown() {
+        wireMockServer.resetAll();
+        wireMockServer.removeStub(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "0631234300019"));
+//        wireMockServer.stop();
     }
 
     @Test
