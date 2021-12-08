@@ -86,7 +86,7 @@ class BeerOrderManagerImplIT {
         @Bean(destroyMethod = "stop")
         public WireMockServer wireMockServer() {
             // Esta configuracion a nivel de puerto coincide con lo configurado en el application.properties de /test
-            WireMockServer server = with(wireMockConfig().port(1234));
+            WireMockServer server = with(wireMockConfig().port(7777));
             //WireMockServer server = new WireMockServer();
             server.start();
             return server;
