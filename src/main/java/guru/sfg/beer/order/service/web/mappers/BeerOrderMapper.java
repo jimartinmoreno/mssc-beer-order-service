@@ -25,8 +25,14 @@ import org.mapstruct.Mapping;
 @Mapper(uses = {DateMapper.class, BeerOrderLineMapper.class})
 public interface BeerOrderMapper {
 
+    /**
+     * @Mapping Configures the mapping of one bean attribute or enum constant.
+     * The name of the mapped attribute or constant is to be specified via target(). For mapped bean attributes it is assumed
+     * by default that the attribute has the same name in the source bean. Alternatively, one of source(), expression() or
+     * constant() can be specified to define the property source.
+     * In addition, the attributes dateFormat() and qualifiedBy() may be used to further define the mapping.
+     */
     @Mapping(target = "customerId", source = "customer.id")
     BeerOrderDto beerOrderToDto(BeerOrder beerOrder);
-
     BeerOrder dtoToBeerOrder(BeerOrderDto dto);
 }

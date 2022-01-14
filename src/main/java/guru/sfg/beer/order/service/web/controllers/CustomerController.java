@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Created by jt on 3/7/20.
- */
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/customers")
@@ -28,6 +25,9 @@ public class CustomerController {
     public CustomerPagedList listCustomers(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                                            @RequestParam(value = "pageSize", required = false) Integer pageSize){
 
+        System.out.println("pageNumber = " + pageNumber);
+        System.out.println("pageSize = " + pageSize);
+
         if (pageNumber == null || pageNumber < 0){
             pageNumber = DEFAULT_PAGE_NUMBER;
         }
@@ -38,4 +38,7 @@ public class CustomerController {
 
         return customerService.listCustomers(PageRequest.of(pageNumber, pageSize));
     }
+
+
+
 }

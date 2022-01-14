@@ -7,15 +7,10 @@ import guru.sfg.brewery.model.CustomerPagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.Collectors;
 
-/**
- * Created by jt on 3/7/20.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,7 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
         return new CustomerPagedList(customerPage
                 .stream()
                 .map(customerMapper::customerToDto)
-                .collect(Collectors.toList()),
+                .toList(),
 //                PageRequest.of(customerPage.getPageable().getPageNumber(), customerPage.getPageable().getPageSize()),
                 customerPage.getPageable(),
                 customerPage.getTotalElements());
