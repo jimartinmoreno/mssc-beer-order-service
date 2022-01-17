@@ -1,6 +1,5 @@
 package guru.sfg.beer.order.service.web.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import guru.sfg.beer.order.service.bootstrap.BeerOrderBootStrap;
 import guru.sfg.beer.order.service.services.beerorder.BeerOrderService;
 import guru.sfg.brewery.model.BeerOrderDto;
@@ -28,10 +27,13 @@ import static org.mockito.BDDMockito.*;
 
 @SpringBootTest
 @AutoConfigureJsonTesters
-class BeerOrderControllerMockTest {
+class BeerOrderControllerMockIT {
 
     @Autowired
     BeerOrderController beerOrderController;
+
+    @Autowired
+    private JacksonTester<BeerOrderDto> beerOrderDtoJacksonTester;
 
     /**
      * @MockBean Annotation that can be used to add mocks to a Spring ApplicationContext. Can be used as a class level annotation
@@ -40,8 +42,8 @@ class BeerOrderControllerMockTest {
     @MockBean
     BeerOrderService beerOrderService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    //    @Autowired
+    //    private ObjectMapper objectMapper;
 
     private BeerOrderDto beerOrderDto;
 
@@ -50,9 +52,6 @@ class BeerOrderControllerMockTest {
 
     @Captor
     private ArgumentCaptor<UUID> uuidArgumentCaptor;
-
-    @Autowired
-    private JacksonTester<BeerOrderDto> beerOrderDtoJacksonTester;
 
     @BeforeEach
     void setUp() {
@@ -71,19 +70,17 @@ class BeerOrderControllerMockTest {
         assertThat(uuidArgumentCaptor.getValue()).isNotNull();
         assertThat(beerOrderDto).isEqualTo(beerOrderDtoArgumentCaptor.getValue());
 
-        JsonContent<BeerOrderDto> jsonContent = this.beerOrderDtoJacksonTester.write(objectMapper.readValue(objectMapper.writeValueAsString(result), BeerOrderDto.class));
+        //JsonContent<BeerOrderDto> jsonContent = this.beerOrderDtoJacksonTester.write(objectMapper.readValue(objectMapper.writeValueAsString(result), BeerOrderDto.class));
+        JsonContent<BeerOrderDto> jsonContent = this.beerOrderDtoJacksonTester.write(result);
 
-        AssertionsForInterfaceTypes.assertThat(jsonContent)
-                .extractingJsonPathStringValue("@.customerRef").isNotNull();
-        AssertionsForInterfaceTypes.assertThat(jsonContent)
-                .extractingJsonPathStringValue("@.customerId").isNotNull();
+        AssertionsForInterfaceTypes.assertThat(jsonContent).extractingJsonPathStringValue("@.customerRef").isNotNull();
+        AssertionsForInterfaceTypes.assertThat(jsonContent).extractingJsonPathStringValue("@.customerId").isNotNull();
     }
 
     private BeerOrderDto getBeerOrderDto() {
-        String beerToOrder = BeerOrderBootStrap.BEER_1_UPC;
 
         BeerOrderLineDto beerOrderLine = BeerOrderLineDto.builder()
-                .upc(beerToOrder)
+                .upc(BeerOrderBootStrap.BEER_1_UPC)
                 .orderQuantity(new Random().nextInt(6))
                 .beerId(UUID.randomUUID())
                 .quantityAllocated(new Random().nextInt(30))
@@ -92,11 +89,10 @@ class BeerOrderControllerMockTest {
         List<BeerOrderLineDto> beerOrderLineSet = new ArrayList<>();
         beerOrderLineSet.add(beerOrderLine);
 
-        BeerOrderDto beerOrder = BeerOrderDto.builder()
+        return BeerOrderDto.builder()
                 .customerId(UUID.randomUUID())
                 .customerRef(UUID.randomUUID().toString())
                 .beerOrderLines(beerOrderLineSet)
                 .build();
-        return beerOrder;
     }
 }

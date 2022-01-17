@@ -86,6 +86,7 @@ class BeerOrderControllerTest {
         verify(beerOrderService, times(1)).placeOrder(uuidArgumentCaptor.capture(), beerOrderDtoArgumentCaptor.capture());
         assertThat(uuidArgumentCaptor.getValue()).isNotNull();
         assertThat(beerOrderDto).isEqualTo(beerOrderDtoArgumentCaptor.getValue());
+
         assertThat(requestJson).isEqualTo(result.getResponse().getContentAsString());
 
         JsonContent<BeerOrderDto> jsonContent = this.beerOrderDtoJacksonTester.write(objectMapper.readValue(responseString, BeerOrderDto.class));
@@ -97,10 +98,9 @@ class BeerOrderControllerTest {
     }
 
     private BeerOrderDto getBeerOrderDto() {
-        String beerToOrder = BeerOrderBootStrap.BEER_1_UPC;
 
         BeerOrderLineDto beerOrderLine = BeerOrderLineDto.builder()
-                .upc(beerToOrder)
+                .upc(BeerOrderBootStrap.BEER_1_UPC)
                 .orderQuantity(new Random().nextInt(6))
                 .beerId(UUID.randomUUID())
                 .quantityAllocated(new Random().nextInt(30))
@@ -109,11 +109,10 @@ class BeerOrderControllerTest {
         List<BeerOrderLineDto> beerOrderLineSet = new ArrayList<>();
         beerOrderLineSet.add(beerOrderLine);
 
-        BeerOrderDto beerOrder = BeerOrderDto.builder()
+        return BeerOrderDto.builder()
                 .customerId(UUID.randomUUID())
                 .customerRef(UUID.randomUUID().toString())
                 .beerOrderLines(beerOrderLineSet)
                 .build();
-        return beerOrder;
     }
 }

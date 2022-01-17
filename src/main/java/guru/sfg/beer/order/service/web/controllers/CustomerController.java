@@ -1,14 +1,15 @@
 package guru.sfg.beer.order.service.web.controllers;
 
 import guru.sfg.beer.order.service.services.customer.CustomerService;
+import guru.sfg.brewery.model.CustomerDto;
 import guru.sfg.brewery.model.CustomerPagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public CustomerPagedList listCustomers(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                                            @RequestParam(value = "pageSize", required = false) Integer pageSize){
 
@@ -39,6 +41,13 @@ public class CustomerController {
         return customerService.listCustomers(PageRequest.of(pageNumber, pageSize));
     }
 
+    @GetMapping(path = "/list")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CustomerDto> listCustomers2(@RequestParam(value = "pageNumber", required = false) Integer pageNumber,
+                                            @RequestParam(value = "pageSize", required = false) Integer pageSize){
+
+        return listCustomers(pageNumber, pageSize).stream().toList();
+    }
 
 
 }

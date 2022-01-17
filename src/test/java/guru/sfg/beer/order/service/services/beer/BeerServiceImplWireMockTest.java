@@ -40,6 +40,8 @@ class BeerServiceImplWireMockTest {
 
     UUID beerId = UUID.randomUUID();
 
+    BeerPagedList beerPagedList;
+
     /**
      * @Configuration that can be used to define additional beans or customizations for a test.
      * Unlike regular @Configuration classes the use of @TestConfiguration does not prevent auto-detection
@@ -56,8 +58,8 @@ class BeerServiceImplWireMockTest {
         public WireMockServer wireMockServer() {
             // Esta configuracion a nivel de puerto coincide con lo configurado en el application.properties de /test
             WireMockServer server = with(wireMockConfig().port(7777));
-            //WireMockServer server = new WireMockServer();
-//            server.start();
+            // WireMockServer server = new WireMockServer();
+            // server.start();
             return server;
         }
     }
@@ -66,7 +68,7 @@ class BeerServiceImplWireMockTest {
     void setUp() throws JsonProcessingException {
         wireMockServer.start();
         beerDto = BeerDto.builder().id(beerId).upc("0631234300019").build();
-        BeerPagedList beerPagedList = new BeerPagedList(List.<BeerDto>of(beerDto));
+        beerPagedList = new BeerPagedList(List.<BeerDto>of(beerDto));
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_PATH_V1)
                 .willReturn(okJson(objectMapper.writeValueAsString(beerPagedList))));
     }
@@ -80,6 +82,7 @@ class BeerServiceImplWireMockTest {
 
     @Test
     void getBeersTest() throws JsonProcessingException {
+
         List<BeerDto> beerDtos = beerService.getBeers();
         System.out.println("beerDtos = " + beerDtos);
     }

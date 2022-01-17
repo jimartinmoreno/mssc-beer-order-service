@@ -20,6 +20,7 @@ package guru.sfg.beer.order.service.web.controllers;
 import guru.sfg.beer.order.service.services.beerorder.BeerOrderService;
 import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.brewery.model.BeerOrderPagedList;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +30,7 @@ import java.util.UUID;
 
 @RequestMapping("/api/v1/customers/{customerId}/")
 @RestController
+@Slf4j
 public class BeerOrderController {
 
     private static final Integer DEFAULT_PAGE_NUMBER = 0;
@@ -41,6 +43,7 @@ public class BeerOrderController {
     }
 
     @GetMapping("orders")
+    @ResponseStatus(HttpStatus.OK)
     public BeerOrderPagedList listOrders(@PathVariable("customerId") UUID customerId,
                                          @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                                          @RequestParam(value = "pageSize", required = false) Integer pageSize){
@@ -63,6 +66,7 @@ public class BeerOrderController {
     }
 
     @GetMapping("orders/{orderId}")
+    @ResponseStatus(HttpStatus.OK)
     public BeerOrderDto getOrder(@PathVariable("customerId") UUID customerId, @PathVariable("orderId") UUID orderId){
         return beerOrderService.getOrderById(customerId, orderId);
     }

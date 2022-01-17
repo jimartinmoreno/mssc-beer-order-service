@@ -12,14 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -46,26 +44,44 @@ class CustomerServiceImplTest {
     //CustomerService customerService = new CustomerServiceImpl(customerRepository, customerMapper);
     CustomerServiceImpl customerService;
 
+    Customer customer;
+    CustomerDto customerDto;
+    List<Customer> customerList;
+
     @BeforeEach
     void setUp() {
         //MockitoAnnotations.openMocks(this);
         //given
-        Customer customer = getCustomer();
-
-        CustomerDto customerDto = getCustomerDto();
-
-        List<Customer> customerList = Arrays.asList(customer);
-        final Page<Customer> page = new PageImpl<>(customerList);
-
-        given(customerRepository.findAll(any(Pageable.class))).willReturn(page);
+        customer = getCustomer();
+        customerDto = getCustomerDto();
+        customerList = Arrays.asList(customer);
         given(customerMapper.customerToDto(any())).willReturn(customerDto);
     }
 
+    @Test
+    void testListCustomers() {
+        log.info("customerService: " + customerService);
+        //given
+        given(customerRepository.findAll()).willReturn(customerList);
 
+        //when
+        List<CustomerDto> customerList = customerService.listCustomers();
+
+        //then
+        log.info("customerPagedList: " + customerList);
+        assertThat(customerList).isNotNull();
+        assertThat(customerList.size()).isPositive();
+        assertThat(customerList).contains(getCustomerDto());
+
+        then(customerRepository).should(times(1)).findAll();
+    }
 
     @Test
     void listCustomers() {
         log.info("customerService: " + customerService);
+        //given
+        final Page<Customer> page = new PageImpl<>(customerList);
+        given(customerRepository.findAll(any(Pageable.class))).willReturn(page);
 
         //when
         CustomerPagedList customerPagedList = customerService.listCustomers(PageRequest.of(0, 25));
@@ -107,4 +123,6 @@ class CustomerServiceImplTest {
                 .build();
         return customerDto;
     }
+
+
 }

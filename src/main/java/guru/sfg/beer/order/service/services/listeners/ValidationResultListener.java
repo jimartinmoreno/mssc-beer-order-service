@@ -10,9 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-/**
- * Created by jt on 12/2/19.
- */
 @Slf4j
 @RequiredArgsConstructor
 @Component

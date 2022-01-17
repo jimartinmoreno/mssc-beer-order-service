@@ -49,15 +49,9 @@ public class BeerOrderServiceImpl implements BeerOrderService {
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
         if (customerOptional.isPresent()) {
-            Page<BeerOrder> beerOrderPage =
-                    beerOrderRepository.findAllByCustomer(customerOptional.get(), pageable);
+            Page<BeerOrder> beerOrderPage = beerOrderRepository.findAllByCustomer(customerOptional.get(), pageable);
 
-            return new BeerOrderPagedList(beerOrderPage
-                    .stream()
-//                    .peek(beerOrder -> log.debug("beerOrder: " + beerOrder))
-                    .map(beerOrderMapper::beerOrderToDto)
-//                    .peek(beerOrderDto -> log.debug("beerOrderDto: " + beerOrderDto))
-                    .toList(),
+            return new BeerOrderPagedList(beerOrderPage.stream().map(beerOrderMapper::beerOrderToDto).toList(),
                     beerOrderPage.getPageable(),
                     beerOrderPage.getTotalElements());
         } else {
@@ -115,5 +109,26 @@ public class BeerOrderServiceImpl implements BeerOrderService {
             throw new RuntimeException("Beer Order Not Found");
         }
         throw new RuntimeException("Customer Not Found");
+    }
+
+    /**
+     * NACHO
+     * @param customerId
+     * @param orderId
+     * @return
+     */
+    private BeerOrder getOrder2(UUID customerId, UUID orderId) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        Customer customer = customerOptional.orElseThrow(() -> new RuntimeException("Customer Not Found"));
+        Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(orderId);
+
+        BeerOrder beerOrder = beerOrderOptional.orElseThrow(() -> new RuntimeException("Beer Order Not Found"));
+
+        // fall to exception if customer id's do not match - order not for customer
+        if (!beerOrder.getCustomer().getId().equals(customer.getId())) {
+            new RuntimeException("Order doesn't belong to customer");
+        }
+        return beerOrder;
     }
 }

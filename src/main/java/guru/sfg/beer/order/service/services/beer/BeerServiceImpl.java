@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Created by jt on 2019-06-09.
- */
 @ConfigurationProperties(prefix = "sfg.brewery", ignoreUnknownFields = false)
 @Service
 @Slf4j
@@ -34,22 +31,28 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Optional<BeerDto> getBeerById(UUID uuid){
-        return Optional.of(restTemplate.getForObject(beerServiceHost + BEER_PATH_V1 + uuid.toString(), BeerDto.class));
+        return Optional.ofNullable(restTemplate.getForObject(beerServiceHost + BEER_PATH_V1 + uuid.toString(), BeerDto.class));
     }
 
     @Override
     public Optional<BeerDto> getBeerByUpc(String upc) {
-        return Optional.of(restTemplate.getForObject(beerServiceHost + BEER_UPC_PATH_V1 + upc, BeerDto.class));
+        return Optional.ofNullable(restTemplate.getForObject(beerServiceHost + BEER_UPC_PATH_V1 + upc, BeerDto.class));
     }
 
     @Override
     public List<BeerDto> getBeers() {
         ParameterizedTypeReference<BeerPagedList> responseType = new ParameterizedTypeReference<BeerPagedList>() { };
+
+        log.debug("beerServiceHost: " + beerServiceHost);
+        log.debug("BEER_PATH_V1: " + BEER_PATH_V1);
+
         ResponseEntity<BeerPagedList> result = restTemplate
                 .exchange(beerServiceHost + BEER_PATH_V1, HttpMethod.GET,
                         null, responseType);
+        //List<BeerDto> searchResult = Optional.ofNullable(result.getBody()).orElseThrow().getContent();
         List<BeerDto> searchResult = result.getBody().getContent();
-        log.debug("searchResult: " + result.getBody().getContent());
+
+        log.debug("searchResult: " + searchResult);
         log.debug("searchResult: " + result.getBody().stream().toList());
         return searchResult;
     }

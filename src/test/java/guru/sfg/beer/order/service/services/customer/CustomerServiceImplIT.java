@@ -1,5 +1,6 @@
 package guru.sfg.beer.order.service.services.customer;
 
+import guru.sfg.brewery.model.CustomerDto;
 import guru.sfg.brewery.model.CustomerPagedList;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureMockR
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +32,7 @@ class CustomerServiceImplIT {
     @Autowired
     CustomerService customerService;
 
-       @Test
+    @Test
     void listCustomers() {
         log.info("customerService: " + customerService);
         CustomerPagedList customerPagedList = customerService.listCustomers(PageRequest.of(0, 25));
@@ -38,5 +41,14 @@ class CustomerServiceImplIT {
         assertThat(customerPagedList.getTotalElements()).isPositive();
         assertThat(customerPagedList.getSize()).isPositive();
         assertThat(customerPagedList.toList().size()).isPositive();
+    }
+
+    @Test
+    void listCustomers2() {
+        log.info("customerService: " + customerService);
+        List<CustomerDto> customerList = customerService.listCustomers();
+        log.info("customerList: " + customerList);
+        assertThat(customerList).isNotNull();
+        assertThat(customerList.size()).isPositive();
     }
 }
